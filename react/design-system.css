@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap");
+
 :root {
   /* Colors */
   --ds-color-green-100: #add010;
@@ -10,6 +12,7 @@
   --ds-color-gray-200: #d9d9d9;
   --ds-color-gray-100: #ebebeb;
   --ds-color-black: #000000;
+  --ds-color-black-100: rgba(0, 0, 0, 0.8); /* black-100 del Figma — usado en pressed dark */
   --ds-color-white: #ffffff;
   --ds-color-surface: #f3f3f3;
   --ds-color-yellow: #f0c802;

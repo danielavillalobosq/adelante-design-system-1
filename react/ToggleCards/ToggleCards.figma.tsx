@@ -19,11 +19,15 @@ figma.connect(
       }),
       visibility: figma.enum("visibility", {
         open: "open",
-        close: "hidden",
+        close: "close",
+      }),
+      size: figma.enum("size", {
+        big: "big",
+        small: "small",
       }),
     },
-    example: ({ state, visibility }) => (
-      <ToggleCards state={state} visibility={visibility} />
+    example: ({ state, visibility, size }) => (
+      <ToggleCards state={state} visibility={visibility} size={size} />
     ),
   }
 );

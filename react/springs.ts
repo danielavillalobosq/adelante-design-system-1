@@ -12,8 +12,8 @@ export const springs = {
   completing: { type: "spring", stiffness: 300, damping: 28 },
   /** Removal, warning, destructive */
   deleting: { type: "spring", stiffness: 500, damping: 25 },
-  /** Card expand, reveal, drawer open */
-  expanding: { type: "spring", stiffness: 200, damping: 26 },
+  /** Card expand, reveal, drawer open — softened para evitar overshoot */
+  expanding: { type: "spring", stiffness: 170, damping: 30 },
   /** Return to rest, dismiss, settle */
   settling: { type: "spring", stiffness: 150, damping: 28 },
 } as const;

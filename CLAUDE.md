@@ -2,11 +2,31 @@
 
 > Este archivo es leído automáticamente por Claude Code. Define cómo trabajar con este repositorio.
 
+## ⚠️ REGLA #1 — Antes de escribir cualquier componente
+
+**STOP.** Antes de crear cualquier `<button>`, `<input>`, `<div role="dialog">`, dropdown, picker, slide button, qty pill, search bar, toggle, etc.:
+
+1. **Listá `react/`** (`ls react/`) para ver qué componentes ya existen.
+2. **Buscá un match en la tabla de mapping de abajo** (Figma → componente React).
+3. **Si existe un componente, IMPÓRTALO. Nunca lo reescribas inline.**
+4. **Si NO existe**, decidí: ¿se justifica agregarlo al DS? Si sí, creálo en `react/<Name>/` con `.tsx`, `.css`, `.stories.tsx`. Si es algo muy específico de la pantalla, dejalo inline pero documentalo.
+
+**Ejemplos de errores a evitar:**
+
+❌ Escribir un `<motion.button>` con un círculo amarillo y un número adentro → ✅ usar `import { QtyPill } from "./react/QtyPill/QtyPill"`
+❌ Escribir un input con panel flotante de sugerencias desde cero → ✅ usar `<SearchBar layout="label">` + tu panel personalizado
+❌ Escribir un botón negro con chevrons SVG inline → ✅ usar `<ToggleCards visibility="open" />`
+❌ Escribir un track black + knob green con drag → ✅ usar `<SlideButton label="Pedir" onConfirm={...} />`
+
+Si reescribiste algo que ya existe, **eliminá tu versión inline y usá la del DS** antes de cerrar la tarea.
+
+---
+
 ## Misión
 
 Cuando el usuario te dé una pantalla de Figma, debes:
 1. Leer el diseño usando el **Figma MCP**
-2. Generar un prototipo funcional usando los **componentes de este design system**
+2. Generar un prototipo funcional usando los **componentes de este design system** (regla #1)
 3. Respetar los **tokens de diseño** (`react/design-system.css`) — nunca valores hardcodeados
 
 ---
@@ -43,8 +63,11 @@ Cuando el usuario comparta una URL de Figma:
 ### Paso 1 — Leer el diseño
 Usa la herramienta `mcp_figma_get_design_context` con el `fileKey` y `nodeId` de la URL.
 
-### Paso 2 — Identificar componentes
-Mapea los elementos visuales a los componentes existentes:
+### Paso 2 — **Inventario obligatorio antes de codear**
+Corré `ls react/` y verificá qué componentes ya existen. **Cualquier elemento del Figma que tenga un match en `react/` se importa, no se reimplementa.** Si te equivocás y lo reimplementás, eliminá el inline al final.
+
+### Paso 3 — Mapeo Figma → componente React
+**Esta es la fuente de verdad.** Si Figma tiene un componente con un nombre similar, usá la entrada de esta tabla:
 
 | Elemento en Figma | Componente React |
 |---|---|
@@ -56,12 +79,23 @@ Mapea los elementos visuales a los componentes existentes:
 | `summaryCard` / tarjeta de resumen | `import { Card } from "./react/Card/Card"` |
 | `formField` / campo de formulario | `import { FormField } from "./react/Form/Form"` |
 | `home` / ícono | `import { Icon } from "./react/Icon/Icon"` |
+| `quantitySelector` / pill circular con anillo de variante | `import { QtyPill } from "./react/QtyPill/QtyPill"` |
+| `slideButton` / deslizar para confirmar | `import { SlideButton } from "./react/SlideButton/SlideButton"` |
+| `selectionDropdown` / dropdown buscable | `import { SelectionDropdown } from "./react/SelectionDropdown/SelectionDropdown"` |
+| `scrollPicker` / bottom-sheet de cantidad con rueda | `import { ScrollPicker } from "./react/ScrollPicker/ScrollPicker"` |
 
-### Paso 3 — Generar el prototipo
+### Paso 4 — Generar el prototipo
 - Crear el archivo en `react/screens/<NombrePantalla>/<NombrePantalla>.tsx`
-- Importar componentes existentes — **no reinventar**
+- Importar **todos** los componentes del DS que aplican (regla #1) — **no reinventar**
 - Aplicar layout con CSS (flexbox/grid) usando tokens
-- Agregar animaciones con `motion/react` cuando aplique
+- Agregar animaciones con `motion/react` importando los springs de `react/springs.ts`
+- Agregar haptics importando de `react/haptic.ts`
+
+### Paso 5 — Auditoría final
+Antes de cerrar la tarea, releé tu `<NombrePantalla>.tsx` y preguntate por cada bloque:
+- ¿Esto debería ser un import de `react/`?
+- Si tiene `<motion.button>` y replica algo del DS, **borralo y usá el componente del DS**.
+- Si tiene SVG icons inline que ya viven en otro componente, importalos de ahí.
 
 ---
 
@@ -104,6 +138,53 @@ import { ToggleCards } from "./react/ToggleCards/ToggleCards";
 <ToggleCards state="standard" mode="disabled" visibility="hidden" />
 ```
 Props: `state: standard|pressed`, `mode: normal|disabled`, `visibility: open|hidden`
+
+### QtyPill
+```tsx
+import { QtyPill } from "./react/QtyPill/QtyPill";
+
+<QtyPill value={3} variant="default" size="sm" />          // amarillo, decorativo
+<QtyPill value={3} variant="ok" />                          // verde (match)
+<QtyPill value={3} variant="alert" onTap={() => {}} />     // rojo, tappable
+```
+Props: `value: number`, `variant: default|ok|alert`, `size: sm|md|lg`, `onTap?: () => void`
+
+### SlideButton
+```tsx
+import { SlideButton } from "./react/SlideButton/SlideButton";
+
+<SlideButton label="Pedir" confirmedLabel="Confirmado" onConfirm={() => {}} />
+<SlideButton label="Pedir" disabled disabledLabel="Agregá un material" onConfirm={() => {}} />
+```
+Drag-to-confirm gesture (motion/react). Threshold default 72%, haptics semánticos integrados.
+
+### SelectionDropdown
+```tsx
+import { SelectionDropdown } from "./react/SelectionDropdown/SelectionDropdown";
+
+<SelectionDropdown
+  items={catalog}                       // [{ code, name }]
+  triggerLabel="Agregar material"
+  searchPlaceholder="Buscar..."
+  onSelect={(item) => {}}
+/>
+```
+Trigger negro filled + panel buscable que abre hacia arriba. Items con badge amarillo (código) + nombre + círculo verde de agregar.
+
+### ScrollPicker
+```tsx
+import { ScrollPicker } from "./react/ScrollPicker/ScrollPicker";
+
+<ScrollPicker
+  open={open}
+  initialValue={3}
+  contextLabel="CONECTOR ADAPTADOR..."  // nombre del item editable
+  variant="default"                      // default|ok|alert (color del anillo + banda)
+  onClose={() => {}}
+  onConfirm={(qty) => {}}
+/>
+```
+Bottom sheet con rueda scrolleable estilo iOS. Tap en el pill grande → input numérico. Se renderiza vía `createPortal` para escapar de stacking contexts.
 
 ### Nav
 ```tsx
