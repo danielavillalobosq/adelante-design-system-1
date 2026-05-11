@@ -154,7 +154,7 @@ export function BoletaPedido() {
               exit={{ opacity: 0, y: 16 }}
               transition={springs.expanding}
             >
-              <ToggleCards visibility="hidden" onClick={() => goTo("slab")} />
+              <ToggleCards visibility="close" onClick={() => goTo("slab")} />
               <button className="boleta-pedido__icon-btn" aria-label="Buscar" onClick={() => haptic.select()}>
                 <Icon name="search" size="md" />
               </button>
